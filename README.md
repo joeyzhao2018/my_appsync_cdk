@@ -1,3 +1,8 @@
+# Preparation
+
+In the example, we create layers for utils, in the `requests_layer`, the library `requests` should be added.
+So you will need to cd into that folder and run `pip install requests -t .`
+
 
 # Welcome to your CDK Python project!
 
@@ -56,3 +61,5 @@ command.
  * `cdk docs`        open CDK documentation
 
 Enjoy!
+
+#

@@ -3,11 +3,11 @@ import os
 
 import aws_cdk as cdk
 
-from my_appsync_cdk.my_appsync_cdk_stack import MyAppsyncCdkStack
+from my_appsync_cdk.my_appsync_cdk_stack import MyAppSyncCdkStack
 
 
 app = cdk.App()
-MyAppsyncCdkStack(app, "MyAppsyncCdkStack",
+MyAppSyncCdkStack(app, "MyAppsyncCdkStack",
     # If you don't specify 'env', this stack will be environment-agnostic.
     # Account/Region-dependent features and context lookups will not work,
     # but a single synthesized template can be deployed anywhere.
