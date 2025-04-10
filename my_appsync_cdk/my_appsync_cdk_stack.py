@@ -208,12 +208,11 @@ class MyAppSyncCdkStack(Stack):
                             update_item_lambda,
                             delete_item_lambda]
 
+        datadog_lambda.add_lambda_functions([graphql_client_lambda] + graphql_lambdas)
         for l in graphql_lambdas:
             l.add_environment("DD_COLD_START_TRACING", 'False')
             l.add_environment("DD_CAPTURE_LAMBDA_PAYLOAD", 'True')
             l.add_environment("DD_TRACE_EXTRACTOR", 'custom_extractor.nested_json_extractor')
-
-        datadog_lambda.add_lambda_functions([graphql_client_lambda] + graphql_lambdas)
 # Outputs
         graphql_client_lambda.add_environment("DD_COLD_START_TRACING", 'False')
 
