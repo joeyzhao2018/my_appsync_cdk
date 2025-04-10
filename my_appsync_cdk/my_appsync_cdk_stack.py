@@ -11,6 +11,9 @@ from aws_cdk import (
 )
 import aws_cdk.aws_appsync_alpha as appsync
 
+import os
+DD_API_KEY = os.environ.get("DD_API_KEY")
+
 class MyAppSyncCdkStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -186,6 +189,33 @@ class MyAppSyncCdkStack(Stack):
             timeout=Duration.seconds(30),
             layers=[requests_layer]
         )
+
+        # Use datadog tool to automatically instrument all the lambdas.
+        # Documentation link: https://docs.datadoghq.com/serverless/aws_lambda/installation/python/?tab=awscdk
+        from datadog_cdk_constructs_v2 import DatadogLambda
+
+        datadog_lambda = DatadogLambda(self, "DatadogLambda",
+            python_layer_version=107,  # You can get the latest version number from https://github.com/DataDog/serverless-plugin-datadog/blob/main/src/layers.json
+            extension_layer_version=75, # You can get the latest version number from https://github.com/DataDog/serverless-plugin-datadog/blob/main/src/layers.json
+            site="datadoghq.com",
+            api_key=DD_API_KEY,
+            service="appsync-demo"
+        )
+
+        graphql_lambdas = [ create_item_lambda,
+                            get_items_lambda,
+                            get_item_by_id_lambda,
+                            update_item_lambda,
+                            delete_item_lambda]
+
+        for l in graphql_lambdas:
+            l.add_environment("DD_COLD_START_TRACING", 'False')
+            l.add_environment("DD_CAPTURE_LAMBDA_PAYLOAD", 'True')
+            l.add_environment("DD_TRACE_EXTRACTOR", 'custom_extractor.nested_json_extractor')
+
+        datadog_lambda.add_lambda_functions([graphql_client_lambda] + graphql_lambdas)
+# Outputs
+        graphql_client_lambda.add_environment("DD_COLD_START_TRACING", 'False')
 
         CfnOutput(
             self, "GraphQLAPIURL",
